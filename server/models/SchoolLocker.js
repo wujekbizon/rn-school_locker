@@ -10,12 +10,13 @@ const SchoolLocker = new Schema(
     schoolName: String,
     classroom: String,
     img: String,
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    privacy: {
+      type: String,
+      enum: ['private', 'public'],
+      default: 'public',
     },
   },
-  { collection: 'lockers' }
+  { timestamps: true, collection: 'lockers' }
 )
 
 export default mongoose.model('SchoolLocker', SchoolLocker)

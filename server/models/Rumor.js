@@ -6,13 +6,12 @@ const Rumor = new Schema(
     userId: String,
     title: { type: String, required: true },
     content: { type: String, required: true },
-    likes: Number,
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    likes: {
+      type: Number,
+      default: 0,
     },
   },
-  { collection: 'rumors' }
+  { timestamps: true, collection: 'rumors' }
 )
 
 export default mongoose.model('Rumor', Rumor)

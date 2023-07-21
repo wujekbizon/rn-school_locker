@@ -5,7 +5,7 @@ const Newsmonger = new Schema(
   {
     email: { type: String, required: true },
   },
-  { collection: 'newsmongers' }
+  { timestamps: true, collection: 'newsmongers' }
 )
 
 export default mongoose.model('Newsmonger', Newsmonger)
