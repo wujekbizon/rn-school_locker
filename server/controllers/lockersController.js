@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import SchoolLocker from '../models/SchoolLockerModel.js'
 import { NotFoundError } from '../errors/customErrors.js'
+import { hashPassword } from '../utils/auth.js'
 
 export const getAllLockers = async (req, res) => {
   const lockers = await SchoolLocker.find({})
@@ -29,7 +30,17 @@ export const createNewLocker = async (req, res) => {
     return res.status(StatusCodes.CONFLICT).json({ message: 'Email address already used! Please enter another email' })
   }
 
-  const locker = await SchoolLocker.create({ email, password, title, student, school, classroom, img, privacy })
+  const hashedPassword = await hashPassword(password)
+  const locker = await SchoolLocker.create({
+    email,
+    password: hashedPassword,
+    title,
+    student,
+    school,
+    classroom,
+    img,
+    privacy,
+  })
 
   res.status(StatusCodes.CREATED).json({ message: 'Locker created', locker })
 }

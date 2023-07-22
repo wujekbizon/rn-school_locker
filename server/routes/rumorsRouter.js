@@ -9,10 +9,14 @@ import {
   deleteRumor,
 } from '../controllers/rumorsController.js'
 
-import { validateRumor } from '../middleware/validationMiddleware.js'
+import { validateRumor, validateRumorIdParam, validateUserIdParam } from '../middleware/validationMiddleware.js'
 
 router.route('/').get(getAllRumors)
-router.route('/:userId').post(validateRumor, createNewRumor)
-router.route('/:userId/:rumorId').get(getSingleRumor).patch(validateRumor, editRumor).delete(deleteRumor)
+router.route('/:userId').post(validateUserIdParam, validateRumor, createNewRumor)
+router
+  .route('/:userId/:rumorId')
+  .get(validateRumorIdParam, getSingleRumor)
+  .patch(validateRumorIdParam, validateRumor, editRumor)
+  .delete(validateRumorIdParam, deleteRumor)
 
 export default router

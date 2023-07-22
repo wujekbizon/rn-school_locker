@@ -1,5 +1,6 @@
-import { body, validationResult } from 'express-validator'
+import { body, param, validationResult } from 'express-validator'
 import { BadRequestError } from '../errors/customErrors.js'
+import mongoose from 'mongoose'
 
 const withValidationErrors = (validateValues) => {
   return [
@@ -50,16 +51,20 @@ export const validatEmail = withValidationErrors([
   body('email').notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email format'),
 ])
 
-/* List of avaiable options 
-isEmail(options?: {
-  allow_display_name?: boolean;
-  allow_utf8_local_part?: boolean;
-  require_tld?: boolean;
-  ignore_max_length?: boolean;
-  allow_ip_domain?: boolean;
-  domain_specific_validation?: boolean;
-  blacklisted_chars?: string;
-  host_blacklist?: string[];
-  host_whitelist?: string[];
-}): ValidationChain
-*/
+export const validateIdParam = withValidationErrors([
+  param('id')
+    .custom((value) => mongoose.Types.ObjectId.isValid(value))
+    .withMessage('Invalid MongoDB id'),
+])
+
+export const validateRumorIdParam = withValidationErrors([
+  param('rumorId')
+    .custom((value) => mongoose.Types.ObjectId.isValid(value))
+    .withMessage('Invalid MongoDB id'),
+])
+
+export const validateUserIdParam = withValidationErrors([
+  param('userId')
+    .custom((value) => mongoose.Types.ObjectId.isValid(value))
+    .withMessage('Invalid MongoDB id'),
+])

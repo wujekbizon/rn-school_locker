@@ -19,7 +19,6 @@ export const getSingleRumor = async (req, res) => {
 
 export const createNewRumor = async (req, res) => {
   const { userId } = req.params
-  console.log(userId)
   const { title, content } = req.body
 
   const rumor = await Rumor.create({ userId, title, content })

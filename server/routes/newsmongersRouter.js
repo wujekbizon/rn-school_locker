@@ -6,9 +6,9 @@ import {
   subscribeToNewsmongers,
   unsubscribeNewsmongers,
 } from '../controllers/newsmongersController.js'
-import { validatEmail } from '../middleware/validationMiddleware.js'
+import { validatEmail, validateIdParam } from '../middleware/validationMiddleware.js'
 
 router.route('/').get(getAllSubscriptions).post(validatEmail, subscribeToNewsmongers)
-router.route('/:id').delete(unsubscribeNewsmongers)
+router.route('/:id').delete(validateIdParam, unsubscribeNewsmongers)
 
 export default router
