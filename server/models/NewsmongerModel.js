@@ -3,7 +3,7 @@ const { Schema } = mongoose
 
 const Newsmonger = new Schema(
   {
-    email: { type: String, required: true },
+    email: String,
   },
   { timestamps: true, collection: 'newsmongers' }
 )

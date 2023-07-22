@@ -3,9 +3,9 @@ const { Schema } = mongoose
 
 const Rumor = new Schema(
   {
-    userId: String,
-    title: { type: String, required: true },
-    content: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'SchoolLocker', required: true },
+    title: String,
+    content: String,
     likes: {
       type: Number,
       default: 0,

@@ -1,94 +1,54 @@
-import SchoolLocker from '../models/SchoolLocker.js'
+import { StatusCodes } from 'http-status-codes'
+import SchoolLocker from '../models/SchoolLockerModel.js'
+import { NotFoundError } from '../errors/customErrors.js'
 
 export const getAllLockers = async (req, res) => {
-  try {
-    const lockers = await SchoolLocker.find({})
-    res.status(200).json(lockers)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message })
-  }
+  const lockers = await SchoolLocker.find({})
+
+  res.status(StatusCodes.OK).json(lockers)
 }
 
 export const getSingleLocker = async (req, res) => {
   const { id } = req.params
-  try {
-    const foundLocker = await SchoolLocker.findById(id)
-    if (!foundLocker) {
-      return res.status(404).json({ message: `Can't find locker with id: ${id}` })
-    }
-    res.status(200).json(foundLocker)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' })
-  }
+
+  const foundLocker = await SchoolLocker.findById(id)
+  if (!foundLocker) throw new NotFoundError(`Can't find locker with id: ${id}`)
+
+  res.status(StatusCodes.OK).json(foundLocker)
 }
 
 export const createNewLocker = async (req, res) => {
   const { email, password, title, student, school, classroom, img, privacy } = req.body
 
-  if (!email || !password || !title) {
-    return res.status(400).json({ message: 'Email, password, and title are required' })
+  const allLockers = await SchoolLocker.find({})
+  const isLockerAlreadyRegistered = allLockers.some((locker) => {
+    return locker.email === email
+  })
+
+  if (isLockerAlreadyRegistered) {
+    return res.status(StatusCodes.CONFLICT).json({ message: 'Email address already used! Please enter another email' })
   }
 
-  try {
-    const locker = await SchoolLocker.create({
-      email,
-      password,
-      title,
-      student,
-      school,
-      classroom,
-      img,
-      privacy,
-    })
-    res.status(201).json({
-      message: 'Locker created',
-      locker,
-    })
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to create locker, please try later!', error })
-  }
+  const locker = await SchoolLocker.create({ email, password, title, student, school, classroom, img, privacy })
+
+  res.status(StatusCodes.CREATED).json({ message: 'Locker created', locker })
 }
 
 export const editLocker = async (req, res) => {
-  const { email, password, title, student, school, classroom, img } = req.body
   const { id } = req.params
 
-  try {
-    const updatedLocker = {
-      email,
-      password,
-      title,
-      student,
-      school,
-      classroom,
-      img,
-    }
+  const editedLocker = await SchoolLocker.findByIdAndUpdate(id, req.body, { new: true })
 
-    const editedLocker = await SchoolLocker.findByIdAndUpdate(id, updatedLocker, {
-      new: true,
-    })
+  if (!editedLocker) throw new NotFoundError(`Can't find locker with id: ${id}`)
 
-    if (!editedLocker) {
-      return res.status(404).json({ message: `Can't find locker with id: ${id}` })
-    }
-    res.status(200).json({
-      message: 'Locker has been updated',
-      updatedLocker,
-    })
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update the locker. Please try again.', error })
-  }
+  res.status(StatusCodes.OK).json({ message: 'Locker has been updated', editedLocker })
 }
 
 export const deleteLocker = async (req, res) => {
   const { id } = req.params
-  try {
-    const removedLocker = await SchoolLocker.findByIdAndDelete(id)
-    if (!removedLocker) {
-      return res.status(404).json({ message: `Can't find locker with id: ${id}` })
-    }
-    res.status(200).json({ message: 'Successfully deleted locker!', locker: removedLocker })
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' })
-  }
+  const removedLocker = await SchoolLocker.findByIdAndDelete(id)
+
+  if (!removedLocker) throw new NotFoundError(`Can't find locker with id: ${id}`)
+
+  res.status(StatusCodes.OK).json({ message: 'Successfully deleted locker!', locker: removedLocker })
 }

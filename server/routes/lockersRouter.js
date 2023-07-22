@@ -7,8 +7,9 @@ import {
   editLocker,
   deleteLocker,
 } from '../controllers/lockersController.js'
+import { validateLocker } from '../middleware/validationMiddleware.js'
 
-router.route('/').get(getAllLockers).post(createNewLocker)
-router.route('/:id').get(getSingleLocker).patch(editLocker).delete(deleteLocker)
+router.route('/').get(getAllLockers).post(validateLocker, createNewLocker)
+router.route('/:id').get(getSingleLocker).patch(validateLocker, editLocker).delete(deleteLocker)
 
 export default router

@@ -1,83 +1,48 @@
-import Rumor from '../models/Rumor.js'
+import { StatusCodes } from 'http-status-codes'
+import Rumor from '../models/RumorModel.js'
+import { NotFoundError } from '../errors/customErrors.js'
 
 export const getAllRumors = async (req, res) => {
-  try {
-    const rumors = await Rumor.find()
-    res.status(200).json(rumors)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message })
-  }
+  const rumors = await Rumor.find({})
+
+  res.status(StatusCodes.OK).json(rumors)
 }
 
 export const getSingleRumor = async (req, res) => {
-  const { id } = req.params
-  try {
-    const foundRumor = await Rumor.findById(id)
-    if (!foundRumor) {
-      return res.status(404).json({ message: `Can't find rumor with id: ${id}` })
-    }
-    res.status(200).json(foundRumor)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' })
-  }
+  const { rumorId } = req.params
+  console.log(rumorId)
+  const foundRumor = await Rumor.findById(rumorId)
+  if (!foundRumor) throw new NotFoundError(`Can't find rumor with id: ${rumorId}`)
+
+  res.status(StatusCodes.OK).json(foundRumor)
 }
 
 export const createNewRumor = async (req, res) => {
-  const { userId, title, content } = req.body
+  const { userId } = req.params
+  console.log(userId)
+  const { title, content } = req.body
 
-  if (!userId || !title || title.trim() === '' || !content || content.trim() === '') {
-    return res.status(400).json({
-      message: 'Content, and title are required',
-    })
-  }
+  const rumor = await Rumor.create({ userId, title, content })
 
-  try {
-    const rumor = await Rumor.create({
-      userId,
-      title,
-      content,
-    })
-
-    res.status(201).json({
-      message: 'Rumor created',
-      rumor,
-    })
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to create rumor, please try later!', error })
-  }
+  res.status(StatusCodes.CREATED).json({ message: 'Rumor created', rumor })
 }
 
 export const editRumor = async (req, res) => {
-  const { title, content } = req.body
-  const { id } = req.params
+  const { rumorId } = req.params
 
-  try {
-    const updatedRumor = {
-      title,
-      content,
-    }
-    const editedRumor = await Rumor.findByIdAndUpdate(id, updatedRumor, { new: true })
-    if (!editedRumor) {
-      return res.status(404).json({ message: `Can't find rumor with id: ${id}` })
-    }
-    res.status(200).json({
-      message: 'Rumor has been updated',
-      updatedRumor,
-    })
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update the rumor. Please try again.', error })
-  }
+  const updatedRumor = req.body
+
+  const editedRumor = await Rumor.findByIdAndUpdate(rumorId, updatedRumor, { new: true })
+  if (!editedRumor) throw new NotFoundError(`Can't find rumor with id: ${rumorId}`)
+
+  res.status(StatusCodes.OK).json({ message: 'Rumor has been updated', updatedRumor })
 }
 
 export const deleteRumor = async (req, res) => {
-  const { id } = req.params
-  try {
-    const removedRumor = await Rumor.findByIdAndDelete(id)
-    if (!removedRumor) {
-      return res.status(404).json({ message: `Can't find rumor with id: ${id}` })
-    }
-    res.status(200).json({ message: 'Rumor successfully deleted!', rumor: removedRumor })
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' })
-  }
+  const { rumorId } = req.params
+
+  const removedRumor = await Rumor.findByIdAndDelete(rumorId)
+  if (!removedRumor) throw new NotFoundError(`Can't find rumor with id: ${rumorId}`)
+
+  res.status(StatusCodes.OK).json({ message: 'Rumor successfully deleted!', rumor: removedRumor })
 }
