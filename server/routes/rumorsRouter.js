@@ -15,8 +15,8 @@ router.route('/').get(getAllRumors)
 router.route('/:userId').post(validateUserIdParam, validateRumor, createNewRumor)
 router
   .route('/:userId/:rumorId')
-  .get(validateRumorIdParam, getSingleRumor)
-  .patch(validateRumorIdParam, validateRumor, editRumor)
-  .delete(validateRumorIdParam, deleteRumor)
+  .get(validateUserIdParam, validateRumorIdParam, getSingleRumor)
+  .patch(validateUserIdParam, validateRumorIdParam, validateRumor, editRumor)
+  .delete(validateUserIdParam, validateRumorIdParam, deleteRumor)
 
 export default router

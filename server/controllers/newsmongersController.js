@@ -1,6 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 import Newsmonger from '../models/NewsmongerModel.js'
-import { NotFoundError } from '../errors/customErrors.js'
 
 export const getAllSubscriptions = async (req, res) => {
   const emails = await Newsmonger.find()
@@ -9,9 +8,7 @@ export const getAllSubscriptions = async (req, res) => {
 
 export const subscribeToNewsmongers = async (req, res) => {
   const { email } = req.body
-
   const allEmails = await Newsmonger.find({})
-
   const isEmailAlreadyRegistered = allEmails.some((item) => {
     return item.email === email
   })
@@ -26,9 +23,8 @@ export const subscribeToNewsmongers = async (req, res) => {
 
 export const unsubscribeNewsmongers = async (req, res) => {
   const { id } = req.params
-
   const removedEmail = await Newsmonger.findByIdAndDelete(id)
-  if (!removedEmail) throw new NotFoundError(`Can't find subscription with id: ${id}`)
-
-  res.status(StatusCodes.OK).json({ message: 'Unsubscribed successfully from newsmongers' })
+  res
+    .status(StatusCodes.OK)
+    .json({ message: 'Unsubscribed successfully from newsmongers', unsubscribedEmail: removedEmail })
 }

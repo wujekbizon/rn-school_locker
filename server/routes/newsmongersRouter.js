@@ -1,14 +1,15 @@
 import { Router } from 'express'
 const router = Router()
+import Newsmonger from '../models/NewsmongerModel.js'
 
 import {
   getAllSubscriptions,
   subscribeToNewsmongers,
   unsubscribeNewsmongers,
 } from '../controllers/newsmongersController.js'
-import { validatEmail, validateIdParam } from '../middleware/validationMiddleware.js'
+import { validatEmail, validateNewsmongerIdParam } from '../middleware/validationMiddleware.js'
 
 router.route('/').get(getAllSubscriptions).post(validatEmail, subscribeToNewsmongers)
-router.route('/:id').delete(validateIdParam, unsubscribeNewsmongers)
+router.route('/:id').delete(validateNewsmongerIdParam, unsubscribeNewsmongers)
 
 export default router

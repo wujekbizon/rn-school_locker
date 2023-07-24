@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { PRIVACY, DEFAULT_IMAGE } from '../utils/constanst.js'
+import { PRIVACY, DEFAULT_IMAGE, ROLES } from '../utils/constanst.js'
 const { Schema } = mongoose
 
 const SchoolLocker = new Schema(
@@ -15,6 +15,11 @@ const SchoolLocker = new Schema(
       type: String,
       enum: Object.values(PRIVACY),
       default: PRIVACY.PUBLIC,
+    },
+    role: {
+      type: String,
+      enum: Object.values(ROLES),
+      default: ROLES.USER,
     },
   },
   { timestamps: true, collection: 'lockers' }

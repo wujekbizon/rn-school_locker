@@ -1,6 +1,11 @@
 import { body, param, validationResult } from 'express-validator'
-import { BadRequestError } from '../errors/customErrors.js'
+import { BadRequestError, NotFoundError } from '../errors/customErrors.js'
 import mongoose from 'mongoose'
+
+// Schema
+import SchoolLocker from '../models/SchoolLockerModel.js'
+import Rumor from '../models/RumorModel.js'
+import Newsmonger from '../models/NewsmongerModel.js'
 
 const withValidationErrors = (validateValues) => {
   return [
@@ -9,6 +14,10 @@ const withValidationErrors = (validateValues) => {
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
         const errorMessages = errors.array().map((error) => error.msg)
+        if (errorMessages[0].startsWith("Can't find")) {
+          throw new NotFoundError(errorMessages)
+        }
+
         throw new BadRequestError(errorMessages)
       }
       next()
@@ -16,8 +25,21 @@ const withValidationErrors = (validateValues) => {
   ]
 }
 
+export const validateLogin = withValidationErrors([
+  body('email').notEmpty().isEmail().withMessage('Invalid email format'),
+  body('password').notEmpty().withMessage('Password is required'),
+])
+
 export const validateLocker = withValidationErrors([
-  body('email').notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email format'),
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Invalid email format')
+    .custom(async (email) => {
+      const locker = await SchoolLocker.findOne({ email })
+      if (locker) throw new BadRequestError('Email address already used! Please enter another email')
+    }),
   body('password')
     .notEmpty()
     .withMessage('Password is required')
@@ -52,19 +74,41 @@ export const validatEmail = withValidationErrors([
 ])
 
 export const validateIdParam = withValidationErrors([
-  param('id')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid MongoDB id'),
+  param('id').custom(async (value) => {
+    const isValidId = mongoose.Types.ObjectId.isValid(value)
+    if (!isValidId) throw new BadRequestError('Invalid MongoDB id')
+
+    const foundLocker = await SchoolLocker.findById(value)
+    if (!foundLocker) throw new NotFoundError(`Can't find locker with id: ${value}`)
+  }),
 ])
 
 export const validateRumorIdParam = withValidationErrors([
-  param('rumorId')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid MongoDB id'),
+  param('rumorId').custom(async (value) => {
+    const isValidId = mongoose.Types.ObjectId.isValid(value)
+    if (!isValidId) throw new BadRequestError('Invalid MongoDB id')
+
+    const foundRumor = await Rumor.findById(value)
+    if (!foundRumor) throw new NotFoundError(`Can't find rumor with id: ${value}`)
+  }),
 ])
 
 export const validateUserIdParam = withValidationErrors([
-  param('userId')
-    .custom((value) => mongoose.Types.ObjectId.isValid(value))
-    .withMessage('Invalid MongoDB id'),
+  param('userId').custom(async (value) => {
+    const isValidId = mongoose.Types.ObjectId.isValid(value)
+    if (!isValidId) throw new BadRequestError('Invalid MongoDB id')
+
+    const foundRumor = await Rumor.findOne({ userId: value })
+    if (!foundRumor) throw new NotFoundError(`Can't find userLocker with id: ${value}`)
+  }),
+])
+
+export const validateNewsmongerIdParam = withValidationErrors([
+  param('id').custom(async (value) => {
+    const isValidId = mongoose.Types.ObjectId.isValid(value)
+    if (!isValidId) throw new BadRequestError('Invalid MongoDB id')
+
+    const foundSubscription = await Newsmonger.findById(value)
+    if (!foundSubscription) throw new NotFoundError(`Can't find subscription with id: ${value}`)
+  }),
 ])

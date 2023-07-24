@@ -15,6 +15,7 @@ import newsmongerRouter from './routes/newsmongersRouter.js'
 
 // middleware
 import errorHandlerMiddleware from './middleware/errorHandlerMiddleware.js'
+import authenticateUser from './middleware/authMiddleware.js'
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
@@ -22,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json())
 
 app.use('/api/v1/lockers', lockersRouter)
-app.use('/api/v1/rumors', rumorsRouter)
+app.use('/api/v1/rumors', authenticateUser, rumorsRouter)
 app.use('/api/v1/newsmongers', newsmongerRouter)
 
 // Not found middleware
