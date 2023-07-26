@@ -10,8 +10,9 @@ import {
 } from '../controllers/rumorsController.js'
 
 import { validateRumor, validateRumorIdParam } from '../middleware/validationMiddleware.js'
+import { authorizePermissions } from '../middleware/authMiddleware.js'
 
-router.route('/').get(getAllRumors).post(validateRumor, createNewRumor)
+router.route('/').get(authorizePermissions('admin'), getAllRumors).post(validateRumor, createNewRumor)
 router
   .route('/:rumorId')
   .get(validateRumorIdParam, getSingleRumor)
