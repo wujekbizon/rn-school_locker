@@ -1,6 +1,5 @@
 import { Router } from 'express'
 const router = Router()
-import Newsmonger from '../models/NewsmongerModel.js'
 
 import {
   getAllSubscriptions,

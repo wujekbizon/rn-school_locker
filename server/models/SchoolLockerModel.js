@@ -25,4 +25,10 @@ const SchoolLocker = new Schema(
   { timestamps: true, collection: 'lockers' }
 )
 
+SchoolLocker.methods.toJSON = function () {
+  let obj = this.toObject()
+  delete obj.password
+  return obj
+}
+
 export default mongoose.model('SchoolLocker', SchoolLocker)

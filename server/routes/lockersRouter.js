@@ -4,18 +4,23 @@ import {
   getAllLockers,
   getSingleLocker,
   createNewLocker,
-  editLocker,
+  updateLocker,
   deleteLocker,
   login,
+  logout,
+  getApplicationStats,
 } from '../controllers/lockersController.js'
-import { validateLocker, validateIdParam, validateLogin } from '../middleware/validationMiddleware.js'
+import { validateRegisterLocker, validateLogin, validateUpdateLocker } from '../middleware/validationMiddleware.js'
+import { authenticateUser, authorizePermissions } from '../middleware/authMiddleware.js'
 
-router.route('/').get(getAllLockers).post(validateLocker, createNewLocker)
-router.route('/login').post(validateLogin, login)
-router
-  .route('/:id')
-  .get(validateIdParam, getSingleLocker)
-  .patch(validateIdParam, validateLocker, editLocker)
-  .delete(validateIdParam, deleteLocker)
+router.get('/', authenticateUser, authorizePermissions('admin'), getAllLockers)
+router.get('/current-locker', authenticateUser, getSingleLocker)
+router.patch('/update-locker', authenticateUser, validateUpdateLocker, updateLocker)
+router.delete('/delete-locker', authenticateUser, deleteLocker)
+router.get('/admin/app-stats', [authenticateUser, authorizePermissions('admin'), getApplicationStats])
+
+router.post('/register', validateRegisterLocker, createNewLocker)
+router.post('/login', validateLogin, login)
+router.get('/logout', logout)
 
 export default router

@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import express from 'express'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
 import { StatusCodes } from 'http-status-codes'
 import { connectToDatabase } from './utils/db.js'
 
@@ -15,16 +16,18 @@ import newsmongerRouter from './routes/newsmongersRouter.js'
 
 // middleware
 import errorHandlerMiddleware from './middleware/errorHandlerMiddleware.js'
-import authenticateUser from './middleware/authMiddleware.js'
+import { authenticateUser } from './middleware/authMiddleware.js'
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
+
+app.use(cookieParser())
 app.use(express.json())
 
 app.use('/api/v1/lockers', lockersRouter)
 app.use('/api/v1/rumors', authenticateUser, rumorsRouter)
-app.use('/api/v1/newsmongers', newsmongerRouter)
+app.use('/api/v1/newsmongers', authenticateUser, newsmongerRouter)
 
 // Not found middleware
 app.use('*', (req, res) => {
